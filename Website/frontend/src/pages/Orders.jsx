@@ -1,42 +1,37 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; // Make sure to import Link if you're using it
-import { Package } from 'lucide-react'; // Assuming you're using the Package icon from lucide-react
-import Title from '../components/Title'; // Ensure Title component is correctly imported
-
-const OrdersData = [
-  {
-    id: "ORD-123456",
-    date: "2024-01-15",
-    total: 89.97,
-    status: "Delivered",
-    items: [
-      {
-        name: "Classic T-Shirt",
-        size: "M",
-        quantity: 2,
-        price: 29.99,
-        image: "/api/placeholder/96/96"
-      },
-      {
-        name: "Denim Jacket",
-        size: "L",
-        quantity: 1,
-        price: 29.99,
-        image: "/api/placeholder/96/96"
-      }
-    ]
-  },
-  // Add more orders as needed
-];
+import React, { useContext } from 'react';
+import { ShopContext } from '../context/shopContext';
+import { Link } from 'react-router-dom';
+import { Package } from 'lucide-react';
+import Title from '../components/Title';
 
 const Orders = () => {
+  const { products, currency } = useContext(ShopContext);
+  
+  // Mock order data using products from context
+  // In a real app, this would come from an API or database
+  const orders = [
+    {
+      id: "ORD-123456",
+      date: "2024-01-15",
+      status: "Delivered",
+      items: products.slice(0, 2).map(product => ({
+        name: product.name,
+        size: "M", // This could be dynamic based on user selection
+        quantity: 1,
+        price: product.price,
+        image: product.image || "/api/placeholder/96/96"
+      })),
+      total: products.slice(0, 2).reduce((sum, product) => sum + product.price, 0)
+    }
+  ];
+
   return (
     <div className="p-4 max-w-7xl mx-auto">
       <div className="flex justify-between text-base sm:text-2xl mb-8">
         <Title text1={"MY"} text2={"ORDERS"} />
       </div>
 
-      {OrdersData.length === 0 ? (
+      {(!products.length || orders.length === 0) ? (
         <div className="text-center text-gray-500">
           <Package className="w-12 h-12 mx-auto mb-4" />
           <p>You haven't placed any orders yet</p>
@@ -49,7 +44,7 @@ const Orders = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {OrdersData.map((order) => (
+          {orders.map((order) => (
             <div
               key={order.id}
               className="border rounded-lg p-6 bg-white shadow-sm"
@@ -85,7 +80,9 @@ const Orders = () => {
                       <h4 className="font-medium">{item.name}</h4>
                       <p className="text-gray-600">Size: {item.size}</p>
                       <p className="text-gray-600">Quantity: {item.quantity}</p>
-                      <p className="font-semibold">${item.price.toFixed(2)}</p>
+                      <p className="font-semibold">
+                        {currency} {item.price.toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -94,7 +91,7 @@ const Orders = () => {
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>{currency} {order.total.toFixed(2)}</span>
                 </div>
               </div>
 
