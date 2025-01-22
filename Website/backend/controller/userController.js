@@ -75,30 +75,38 @@ const registerUser = async (req, res) => {
     }
 };
 
-// Route for admin login
 const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Check if admin exists
-        const admin = await userModel.findOne({ email, role: "admin" });
-        if (!admin) {
-            return res.status(401).json({ success: false, message: "Invalid admin credentials" });
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+            // Create token with a proper payload object
+            const token = jwt.sign(
+                { 
+                    email: email,
+                    isAdmin: true
+                }, 
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }  // Optional: add token expiration
+            );
+
+            res.status(200).json({
+                success: true,
+                message: "Admin login successful",
+                token
+            });
+        } else {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid admin credentials"
+            });
         }
-
-        // Compare passwords
-        const isMatch = await bcrypt.compare(password, admin.password);
-        if (!isMatch) {
-            return res.status(401).json({ success: false, message: "Invalid admin credentials" });
-        }
-
-        // Generate JWT token
-        const token = createToken(admin._id);
-
-        res.status(200).json({ success: true, message: "Admin login successful", token });
     } catch (e) {
         console.error(e);
-        res.status(500).json({ success: false, message: "Error logging in admin" });
+        res.status(500).json({
+            success: false,
+            message: "Error logging in admin"
+        });
     }
 };
 
