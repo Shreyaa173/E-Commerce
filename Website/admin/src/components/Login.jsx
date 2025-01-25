@@ -1,23 +1,40 @@
-import React, {useState} from 'react'
-import { backendUrl } from '../App';
-import axios from 'axios'
+import React, { useState } from "react";
+import { backendUrl } from "../App";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 
-const Login = () => {
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const onSubmitHandler = async(e) => {
-        try{
-            e.preventDefault();
-            // call API to authenticate user
-            const response = await axios.post(backendUrl + 'api/user/admin', {email,password})
-            console.log(response)
-        }
-        catch(error){
-            console.error(error);
-        }
+const Login = ({ setToken }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    try {
+      // Call the backend API to authenticate user
+      const response = await axios.post(`${backendUrl}api/user/admin`, {
+        email,
+        password,      });
+      console.log(`${backendUrl}api/user/admin`);
+
+      toast.success("Login successful!"); // Show success notification
+      console.log("Login Successful:", response.data);
+      setToken(response.data.token); // Assuming the backend sends a token in the response
+    } catch (error) {
+      console.error("Error during login:", error);
+      if (error.response?.status === 404) {
+        toast.error("API endpoint not found. Please check your backend setup.");
+      } else if (error.response?.status === 401) {
+        toast.error("Invalid email or password. Please try again.");
+      } else {
+        toast.error("Login failed. Something went wrong.");
+      }
     }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="bg-white shadow-md rounded-lg p-8 w-96">
         <h2 className="text-2xl font-bold mb-6 text-center">Admin Panel</h2>
         <form onSubmit={onSubmitHandler}>
@@ -33,8 +50,9 @@ const Login = () => {
               id="email"
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
               placeholder="admin@example.com"
-              onChange = {(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               value={email}
+              required
             />
           </div>
           <div className="mb-6">
@@ -49,8 +67,9 @@ const Login = () => {
               id="password"
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-black focus:border-black"
               placeholder="••••••••"
-              onChange = {(e) => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               value={password}
+              required
             />
           </div>
           <button
@@ -62,7 +81,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
