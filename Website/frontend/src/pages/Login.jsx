@@ -1,17 +1,45 @@
 import React, { useState } from "react";
 import Title from "../components/Title";
 import { Package, Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add login logic here
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch("http://localhost:5000/api/user/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      toast.success("Login successful!");
+      localStorage.setItem("token", data.token);
+      navigate("/");
+
+    } else {
+      toast.error(data.message || "Login failed");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    toast.error("Server error. Please try again later.");
+  }
+};
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
@@ -63,7 +91,7 @@ const Login = () => {
               type="submit"
               className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-800 transition-colors"
             >
-              Sign In
+              Log In
             </button>
 
             <div className="text-center text-sm text-gray-500">
