@@ -12,9 +12,7 @@ export const backendUrl = import.meta.env.VITE_BACKEND_URL.endsWith("/")
   : import.meta.env.VITE_BACKEND_URL + "/";
 
 const App = () => {
-  const [token, setToken] = useState(localStorage.getItem("token") || ""); // Initialize token from localStorage
-
-  // Update localStorage whenever token changes
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);

@@ -9,28 +9,25 @@ const Login = ({ setToken }) => {
   const [password, setPassword] = useState("");
 
   const onSubmitHandler = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    try {
-      // Call the backend API to authenticate user
+    try{
+      e.preventDefault();
       const response = await axios.post(`${backendUrl}api/user/admin`, {
         email,
-        password,      });
-      console.log(`${backendUrl}api/user/admin`);
-
-      toast.success("Login successful!"); // Show success notification
-      console.log("Login Successful:", response.data);
-      setToken(response.data.token); // Assuming the backend sends a token in the response
-    } catch (error) {
-      console.error("Error during login:", error);
-      if (error.response?.status === 404) {
-        toast.error("API endpoint not found. Please check your backend setup.");
-      } else if (error.response?.status === 401) {
-        toast.error("Invalid email or password. Please try again.");
+        password,
+      });
+      if (response.status === 200) {
+        setToken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+        toast.success("Login successful!");
       } else {
-        toast.error("Login failed. Something went wrong.");
+        toast.error("Login failed. Please check your credentials.");
       }
     }
-  };
+    catch(error){
+      toast.error("An error occurred while submitting the form.");
+      return;
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

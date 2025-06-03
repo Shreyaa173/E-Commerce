@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken'; // Add this import
+
 const adminAuth = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
