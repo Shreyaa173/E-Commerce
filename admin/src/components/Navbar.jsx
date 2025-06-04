@@ -3,11 +3,11 @@ import logo from "../assets/admin_assets/logo.png";
 
 const Navbar = ({ setToken }) => {
   const handleLogout = () => {
-    setToken(""); // Clear token in state
+    setToken("");
   };
 
   return (
-    <header className="flex justify-between items-center bg-gray-50 px-6 py-4 border-b border-gray-200 px-[50px]">
+    <header className="flex justify-between items-center bg-gray-50 px-6 py-4 border-b border-gray-200">
       <div className="flex items-center space-x-2">
         <img className="w-[125px]" src={logo} alt="Logo" />
       </div>

@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { products } from "../assets/assets/frontend_assets/assets"; 
+import React, { createContext, useState, useEffect } from 'react'; 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 export const ShopContext = createContext();
 
@@ -11,6 +11,9 @@ const ShopContextProvider = (props) => {
     const [search, setSearch] = useState('');
     const [showSearch, setShowSearch] = useState(false);
     const [cartItems, setCartItems] = useState({});
+    const [products, setProducts] = useState([]);
+    const [token, setToken] = useState('');
+    const backend = import.meta.env.VITE_BACKEND_URL;
 
     const addToCart = async (itemId, size) => {
         if (!size) {
@@ -44,6 +47,25 @@ const ShopContextProvider = (props) => {
         return count;
     };
 
+    const getProductsData = async () => {
+        try {
+            const response = await axios.get(`${backend}/api/product/list`);
+            if (response.status === 200) {
+                setProducts(response.data.products);
+            } else {
+                toast.error('Failed to load products');
+            }
+        } catch (error) {
+            console.error('Error fetching product data:', error);
+            toast.error('Failed to load products');
+            return [];
+        }
+    }
+
+    useEffect(() => {
+        getProductsData();
+    }, []);
+
     const value = {
         products,
         currency,
@@ -54,7 +76,10 @@ const ShopContextProvider = (props) => {
         setShowSearch,
         addToCart,
         cartItems,
-        getCartCount
+        getCartCount,
+        backend,
+        token, 
+        setToken
     };
 
     useEffect(() => {

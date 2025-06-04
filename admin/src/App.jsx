@@ -6,10 +6,14 @@ import Add from "./pages/Add";
 import List from "./pages/List";
 import Orders from "./pages/Orders";
 import Login from "./components/Login";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL.endsWith("/")
   ? import.meta.env.VITE_BACKEND_URL
   : import.meta.env.VITE_BACKEND_URL + "/";
+
+export const currency = '$';
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
@@ -27,6 +31,17 @@ const App = () => {
         <Login setToken={setToken} />
       ) : (
         <>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
           <Navbar setToken={setToken} />
           <div className="flex w-full">
             <Sidebar />

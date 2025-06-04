@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import upload_area from "../assets/admin_assets/upload_area.png";
 import axios from "axios";
 import { backendUrl } from "../App";
+import { toast } from "react-toastify";
 
 const sizes = ["S", "M", "L", "XL", "XXL"];
 
@@ -25,7 +26,12 @@ const Add = ({ token }) => {
   };
 
   const handleSubmit = async (e) => {
+    if (!token) {
+      toast.error("You must be logged in to add products.");
+      return;
+    }
     e.preventDefault();
+    console.log("Submitted!");
     try {
       const formData = new FormData();
 
@@ -51,10 +57,10 @@ const Add = ({ token }) => {
           },
         }
       );
-      console.log(response.data);
-      
+
       // Reset form after successful submission
       if (response.data.success) {
+        toast.success("Product added successfully!");
         setName("");
         setDescription("");
         setPrice("");
@@ -66,11 +72,13 @@ const Add = ({ token }) => {
         setImage2(false);
         setImage3(false);
         setImage4(false);
-        alert("Product added successfully!");
+      } else {
+        toast.error("Failed to add product. Please try again.");
       }
     } catch (e) {
-      console.error("Error uploading images:", e.response?.data || e.message);
-      alert("Failed to upload images. Please try again.");
+      const errorMsg = e.response?.data?.message || "Failed to add product.";
+      console.error("Error uploading images:", errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -83,7 +91,11 @@ const Add = ({ token }) => {
         <p className="text-lg font-medium mb-2">Upload Image</p>
         <div className="w-1/2 grid grid-cols-4 gap-2">
           <label htmlFor="image1">
-            <img src={!image1 ? upload_area : URL.createObjectURL(image1)} className="w-20" alt="upload" />
+            <img
+              src={!image1 ? upload_area : URL.createObjectURL(image1)}
+              className="w-20"
+              alt="upload"
+            />
             <input
               type="file"
               id="image1"
