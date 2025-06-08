@@ -14,6 +14,8 @@ const ShopContextProvider = (props) => {
     const [products, setProducts] = useState([]);
     const [token, setToken] = useState('');
     const backend = import.meta.env.VITE_BACKEND_URL;
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
 
     const addToCart = async (itemId, size) => {
         if (!size) {
@@ -62,6 +64,52 @@ const ShopContextProvider = (props) => {
         }
     }
 
+    // Authentication functions
+    const login = (userData, authToken) => {
+        setIsLoggedIn(true);
+        setUser(userData);
+        setToken(authToken);
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        toast.success('Login successful!');
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    };
+
+    const logout = () => {
+        setIsLoggedIn(false);
+        setUser(null);
+        setToken('');
+        setCartItems({}); // Clear cart on logout
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userData');
+        toast.success('Logged out successfully!');
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    };
+
+    // Check for existing authentication on component mount
+    useEffect(() => {
+        const savedToken = localStorage.getItem('authToken');
+        const savedUserData = localStorage.getItem('userData');
+        
+        if (savedToken && savedUserData) {
+            try {
+                const userData = JSON.parse(savedUserData);
+                setToken(savedToken);
+                setUser(userData);
+                setIsLoggedIn(true);
+            } catch (error) {
+                console.error('Error parsing saved user data:', error);
+                // Clear corrupted data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+            }
+        }
+    }, []);
+
     useEffect(() => {
         getProductsData();
     }, []);
@@ -79,7 +127,11 @@ const ShopContextProvider = (props) => {
         getCartCount,
         backend,
         token, 
-        setToken
+        setToken,
+        isLoggedIn,
+        user,
+        login,
+        logout
     };
 
     useEffect(() => {

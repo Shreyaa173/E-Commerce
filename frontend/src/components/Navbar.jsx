@@ -1,12 +1,25 @@
 import React from "react";
 import { assets } from "../assets/assets/frontend_assets/assets";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useState, useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 
 const Navbar = () => {
   const [visible, setVisible] = useState(false);
-  const { setShowSearch, getCartCount } = useContext(ShopContext);
+  const { setShowSearch, getCartCount, isLoggedIn, logout } = useContext(ShopContext);
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    // If logged in, the dropdown will show due to CSS hover
+  };
+
+  const handleLogout = () => {
+    logout(); // Call logout function from context
+    navigate('/'); // Navigate to home after logout
+  };
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -33,33 +46,46 @@ const Navbar = () => {
       </ul>
 
       <div className="flex items-center gap-6">
-        <a href="/collection">
+        <Link to="/collection">
           <img
             onClick={() => setShowSearch(true)}
             src={assets.search_icon}
             className="w-5 cursor-pointer"
             alt=""
           />
-        </a>
+        </Link>
         <div className="group relative">
           <img
             src={assets.profile_icon}
             className="w-5 cursor-pointer"
             alt=""
+            onClick={handleProfileClick}
           />
-          <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <Link to = "/login">
-              <p className="cursor-pointer hover:text-black">My Profile</p>
-              </Link>
-              <Link to = "/order"><p className="cursor-pointer hover:text-black">Orders</p></Link>
-              <p className="cursor-pointer hover:text-black">Logout</p>
+          {/* Only show dropdown if user is logged in */}
+          {isLoggedIn && (
+            <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
+              <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
+                <Link to="/profile">
+                  <p className="cursor-pointer hover:text-black">My Profile</p>
+                </Link>
+                <Link to="/order">
+                  <p className="cursor-pointer hover:text-black">Orders</p>
+                </Link>
+                <p 
+                  className="cursor-pointer hover:text-black"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <Link to="/cart" className="relative">
           <img src={assets.cart_icon} className="w-5 min-w-5" alt="" />
-          <p className="absolute right-[-8px] bottom -[-10px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">{getCartCount()}</p>
+          <p className="absolute right-[-8px] bottom-[-10px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
+            {getCartCount()}
+          </p>
         </Link>
         <img
           onClick={() => setVisible(true)}
@@ -82,16 +108,16 @@ const Navbar = () => {
             <img className="h-4 rotate-180" src={assets.dropdown_icon} alt="" />
             <p>Back</p>
           </div>
-          <NavLink className="py-2 pl-6 border" to="/">
+          <NavLink className="py-2 pl-6 border" to="/" onClick={() => setVisible(false)}>
             HOME
           </NavLink>
-          <NavLink className="py-2 pl-6 border" to="/collection">
+          <NavLink className="py-2 pl-6 border" to="/collection" onClick={() => setVisible(false)}>
             COLLECTION
           </NavLink>
-          <NavLink className="py-2 pl-6 border" to="/about">
+          <NavLink className="py-2 pl-6 border" to="/about" onClick={() => setVisible(false)}>
             ABOUT
           </NavLink>
-          <NavLink className="py-2 pl-6 border" to="/contact">
+          <NavLink className="py-2 pl-6 border" to="/contact" onClick={() => setVisible(false)}>
             CONTACT
           </NavLink>
         </div>
